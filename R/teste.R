@@ -14,6 +14,8 @@
 #' @examples
 #'
 #' teste()
+#'
+#' @export
 
 teste <- function() {
 
