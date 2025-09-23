@@ -1,5 +1,5 @@
 # 3. fazer o commit
-usethis::use_git('teste()')
+usethis::use_git('criação')
 3
 
 # 2. ignorar os arquivos e pastas
