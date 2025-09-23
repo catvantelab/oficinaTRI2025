@@ -25,5 +25,5 @@ Imports:
     shiny,
     shinyjs,
     tableHTML
-URL: https://github.com/alexandrejaloto/oficinaTRI2025
-BugReports: https://github.com/alexandrejaloto/oficinaTRI2025/issues
+URL: https://github.com/catvantelab/oficinaTRI2025
+BugReports: https://github.com/catvantelab/oficinaTRI2025/issues
