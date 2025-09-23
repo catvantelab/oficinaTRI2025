@@ -18,6 +18,7 @@ bem como as dependências dos pacotes.
 \examples{
 
 teste()
+
 }
 \author{
 Alexandre Jaloto
