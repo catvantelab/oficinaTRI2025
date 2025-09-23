@@ -6,11 +6,6 @@ library (shiny)
 library (tableHTML)
 library (ggplot2)
 
-# df_textos_brincar = INEPsico::df_textos_brincar
-# df_textos_brincar = readxl::read_xlsx (
-#   'df_textos_brincar.xlsx'
-# ) %>% data.frame()
-
 # criar objetos para radio e select input. eles vão aparecer lá embaixo e
 # precisam ser com objetos porque dá erro se não for assim
 radio = c(1, 0)
