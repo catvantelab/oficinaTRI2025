@@ -48,7 +48,7 @@ brincar = function()
           file.path(
             paste0(
               .libPaths()[1],
-              '/INEPsico/',
+              '/oficinaTRI2025/',
               'ui_app.R'
             )
           ),
@@ -69,7 +69,7 @@ brincar = function()
         file.path(
           paste0(
             .libPaths()[1],
-            '/INEPsico/',
+            '/oficinaTRI2025/',
             'server_app.R'
           )
         ),
