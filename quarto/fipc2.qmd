@@ -1,0 +1,201 @@
+# Segunda aplicação
+
+```{r, echo=FALSE, include=FALSE}
+library(mirt)
+library(ggplot2)
+library(data.table)
+library(dplyr)
+library(lordif)
+library(cowplot)
+library(mirtCAT)
+devtools::load_all()
+
+fit.t1 <- readRDS('saidas/fit_t1.rds')
+escore.t1 <- readRDS('saidas/escore_t1.rds')
+```
+
+## Preparação
+
+Importar banco
+
+```{r}
+data(banco2pl.t2, package = 'oficinaTRI2025')
+```
+
+Nome das variáveis do banco
+
+```{r}
+names(banco2pl.t2)
+```
+
+São 50 itens, dos quais 30 são comuns à primeira aplicação (T1).
+
+## Calibração dos novos itens
+
+Calibrar os itens no modelo logístico de dois parâmetros
+
+```{r}
+fit.t2 <- mirt(data = banco2pl.t2, model = 1, itemtype = '2PL', TOL = .001)
+```
+Armazenar os parâmetros em um objeto
+
+```{r}
+pars.t2 <- data.frame(coef(fit.t2, IRTpars = TRUE, simplify = TRUE)$items)
+head(pars.t2)
+```
+
+Problema: a referência da escala da calibração T2 é diferente da referência da calibração T1. Portanto as medidas T1 e T2 não são comparáveis. Uma solução é fixar os parâmetros dos itens comuns. Esse procedimento é chamado de Calibração com Parâmetros de Itens Fixos (Fixed Item Parameters Calibration, FIPC) e é utilizado no PISA (Programa Internacional de Avaliação de Estudantes, Programme for International Student Assessment) para equalizar as provas de edições diferentes.
+
+Primeiro, é preciso gerar a tabela de parâmetros inicial para configurar esses parâmetros. Para isso, usamos o argumento `pars`.
+
+```{r}
+tab.pars <- mirt(data = banco2pl.t2,
+                 model = 1,
+                 itemtype = '2PL',
+                 TOL = .001,
+                 pars = 'values')
+head(tab.pars)
+```
+
+Agora, vamos atribuir os valores obtidos na calibração T1. Um caminho é obter esses valores a partir da tabela de parâmetros final da calibração T1 e incluí-los no objeto `tab.pars` para a calibração T2.
+
+Primeiro, vamos criar um objeto com nome dos itens comuns e pegar a tabela de parâmetros final da calibração T1 com a função `mod2values`.
+
+```{r}
+itens.comuns <- paste0('Item_', 21:50)
+pars.comuns <- mod2values(fit.t1)
+head(pars.comuns)
+```
+
+Em seguida, vamos fazer um loop para atribuir os valores dos parâmetros de T1 na tabela de parâmetros de T2. Os valores devem ser obtidos da calibração T1 e a variável `est` desses itens deve ser `FALSE` para a calibração T2.
+
+```{r}
+for(i in 1:length(itens.comuns))
+{
+  tab.pars[tab.pars$item == itens.comuns[i] & tab.pars$name == 'a1', 'value'] <- pars.comuns[pars.comuns$item == itens.comuns[i] & pars.comuns$name == 'a1', 'value']
+  tab.pars[tab.pars$item == itens.comuns[i] & tab.pars$name == 'd', 'value'] <- pars.comuns[pars.comuns$item == itens.comuns[i] & pars.comuns$name == 'd', 'value']
+  tab.pars[tab.pars$item == itens.comuns[i], 'est'] <- FALSE
+}
+```
+
+Veja que agora os ietns comuns têm os parâmetros fixados com os valores obtidos em T1.
+
+```{r}
+head (tab.pars)
+```
+
+Na nova calibração de T2, note a diferença no argumento `pars`.
+
+```{r, eval=FALSE}
+fit.t2 <- mirt(data = banco2pl.t2,
+               model = 1,
+               itemtype = '2PL',
+               TOL = .001,
+               pars = tab.pars)
+```
+A calibração rodou, porém está incorreta. Por padrão, o `mirt` fixa a média do grupo de referência da calibração em `0` e o desvio padrão, em `1`. Veja esses valores obtidos nas calibrações T1 e T2. Em ambos os casos, a média do grupo é `0`.
+
+```{r}
+coef(fit.t1, simplify = TRUE)
+```
+```{r}
+coef(fit.t2, simplify = TRUE)
+```
+
+Isso significa que na calibração T1 os itens foram calibrados tendo o grupo T1 como referência. O centro da escala (`0`) é a média do grupo T1. Ocorre que na calibração T2, o `mirt` também fixou a média do grupo em `0`. Ou seja, o grupo T2 está sendo tratado como a referência da escala. Porém, a referência deve ser o grupo T1, cuja média é de fato o centro da escala, pois os itens estão fixados com os valores obtidos na calibração T1. Portanto, para mantermos a referência correta, é preciso liberar a estimação da média e do desvio padrão do grupo T2 na calibração. Isso é feito na tabela de parâmetros inicial da calibração T2.
+
+Em resumo, na calibração T2 é preciso fixar os itens comuns e liberar a média e o desvio do grupo novo (T2). O complemento do comando para fazer é isso é:
+
+```{r}
+
+tab.pars[tab.pars$name == 'MEAN_1', 'est'] <- TRUE
+tab.pars[tab.pars$name == 'COV_11', 'est'] <- TRUE
+
+```
+
+Agora sim, a calibração T2.
+```{r}
+fit.t2 <- mirt(data = banco2pl.t2,
+               model = 1,
+               itemtype = '2PL',
+               TOL = .001,
+               pars = tab.pars)
+```
+
+## Análise de DIF
+
+Nesta atividade, vamos usar o método do Root Mean Square Deviation (RMSD, Raiz do Desvio Quadrático Médio). A função `RMSD_DIF` no pacote `mirt` implementa o método, porém somente para objetos do tipo `MultipleGroupClass`, gerado pela função `multipleGroup`. Como o nosso objeto é `SingleGroupClass`, adaptei a função. O critério utilizado nesta atividade para marcar itens com DIF é `0.10`, como sugerido por Klein (2025).
+
+```{r}
+dif.rmsd(calib = fit.t2, flag = 0.10)
+```
+
+Conclusão: não foi detectado DIF com o método RMSD.
+
+## Estimação do escore dos sujeitos
+
+Calcular o escore dos sujeitos e o erro de medida
+
+```{r}
+escore.t2 <- data.frame(fscores(fit.t2, full.scores.SE = TRUE))
+head(escore.t2)
+```
+
+## Avaliação do instrumento T2 e cobertura do construto
+
+Gráficos com a curva de densidade da amostra, informação do teste e erro de medida na calibração T2.
+
+```{r densidade_t2}
+
+info_t2 <- testinfo(fit.t2, seq(-3, 3, .01))
+
+grafico_t2_info <- ggplot() +
+  geom_density(aes(x = escore.t2$F1)) +
+  labs(title='Densidade e informação (T2)', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = info_t2 / 45), linetype = 2) +
+  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
+  scale_y_continuous(limits = c(0, 1),
+                     sec.axis = sec_axis(~ . * 45, name = 'informação'))
+
+erro_t2 <- 1/sqrt(info_t2 + 1)
+
+grafico_t2_erro <- ggplot() +
+  geom_density(aes(x = escore.t2$F1)) +
+  labs(title='Densidade e erro (T2)', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = erro_t2 / .8), linetype = 2) +
+  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
+  scale_y_continuous(limits = c(0, 1),
+                     sec.axis = sec_axis(~ . * .8, name = 'erro padrão'))
+
+plot_grid(grafico_t2_info, grafico_t2_erro,
+          labels = c('A', 'B'),
+          ncol = 2)
+
+```
+
+Avaliação do instrumento T2 caso fosse aplicado ao grupo T1.
+
+```{r}
+
+grafico_t2_t1_info <- ggplot() +
+  geom_density(aes(x = escore.t1$F1)) +
+  labs(title='Densidade (T1) e informação (T2)', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = info_t2 / 45), linetype = 2) +
+  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
+  scale_y_continuous(limits = c(0, 1),
+                     sec.axis = sec_axis(~ . * 45, name = 'informação'))
+
+grafico_t2_t1_erro <- ggplot() +
+  geom_density(aes(x = escore.t1$F1)) +
+  labs(title='Densidade (T1) e erro (T2)', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = erro_t2 / .8), linetype = 2) +
+  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
+  scale_y_continuous(limits = c(0, 1),
+                     sec.axis = sec_axis(~ . * .8, name = 'erro padrão'))
+
+plot_grid(grafico_t2_t1_info, grafico_t2_t1_erro,
+          labels = c('A', 'B'),
+          ncol = 2)
+
+```
+

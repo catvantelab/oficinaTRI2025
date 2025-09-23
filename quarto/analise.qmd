@@ -1,0 +1,387 @@
+# Primeira aplicação
+
+```{r, echo=FALSE, include=FALSE}
+library(mirt)
+library(ggplot2)
+library(data.table)
+library(dplyr)
+devtools::load_all()
+```
+
+## Preparação
+
+Importar banco
+
+```{r}
+data(banco2pl.t1, package = 'oficinaTRI2025')
+```
+
+Nome das variáveis do banco
+
+```{r}
+names(banco2pl.t1)
+```
+
+São 10 itens. Confirmar que os itens são dicotômicos
+
+```{r}
+table(banco2pl.t1$Item_1)
+```
+
+Função apply para toda a tabela (quando usa 2, a função percorre cada coluna).
+
+```{r}
+apply(banco2pl.t1, 2, table)
+```
+## Calibração inicial
+
+Calibrar os itens no modelo logístico de dois parâmetros
+
+```{r}
+fit.2pl <- mirt(data = banco2pl.t1, model = 1, itemtype = '2PL', TOL = .001)
+```
+
+Verificar os parâmetros dos itens
+
+```{r}
+coef(fit.2pl)
+```
+
+Verificar os parâmetros dos itens de forma simplificada
+
+```{r}
+coef(fit.2pl, simplify = TRUE)
+```
+
+Verificar os parâmetros dos itens (dificuldade em vez do intercepto) de forma simplificada
+
+```{r}
+coef(fit.2pl, IRTpars = TRUE, simplify = TRUE)
+```
+
+Armazenar os parâmetros em um objeto
+
+```{r}
+pars <- data.frame(coef(fit.2pl, IRTpars = TRUE, simplify = TRUE)$items)
+pars
+```
+
+## Gráficos
+
+Curva de informação do teste
+
+```{r}
+plot(fit.2pl, type = 'info')
+```
+
+Erro padrão de medida em função do escore
+
+```{r}
+plot(fit.2pl, type = 'SE')
+```
+
+Informação do teste e erro padrão
+
+```{r}
+plot(fit.2pl, type = 'infoSE')
+```
+
+Curva característica de cada item
+
+```{r}
+plot(fit.2pl, type = 'trace')
+```
+
+## Escore dos sujeitos
+
+Calcular o escore dos sujeitos e o erro de medida
+
+```{r}
+escore.2pl <- data.frame(fscores(object = fit.2pl, full.scores.SE = TRUE))
+head(escore.2pl)
+```
+
+Curva de densidade da amostra e de informação do teste
+
+```{r}
+
+info <- testinfo(fit.2pl, seq(-3, 3, .01))
+
+ggplot() +
+  geom_density(aes(x = escore.2pl$F1)) +
+  labs(title='Curva de densidade e de informação', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = info / 45), linetype = 2) +
+  scale_y_continuous(limits = c(0, limite_densidade),
+                     sec.axis = sec_axis(~ . * 45, name = 'informação'))
+```
+
+Curva de densidade da amostra e do erro da medida
+
+```{r}
+info <- testinfo(fit.2pl, seq(-3, 3, .01))
+erro <- 1/sqrt(info + 1)
+ggplot() +
+  geom_density(aes(x = escore.2pl$F1)) +
+  labs(title='Curva de densidade e de informação', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = erro / .8), linetype = 2) +
+  scale_y_continuous(limits = c(0, limite_densidade),
+                     sec.axis = sec_axis(~ . * .8, name = 'erro padrão'))
+```
+
+# Segunda aplicação
+
+## Equalização com múltiplos grupos e itens fixos
+
+### Preparação
+
+Importar banco
+
+```{r}
+data(banco2pl.t2, package = 'oficinaTRI2025')
+```
+
+Nome das variáveis do banco
+
+```{r}
+names(banco2pl.t2)
+```
+
+São 10 itens. Confirmar que os itens são dicotômicos
+
+```{r}
+apply(banco2pl.t2, 2, table)
+```
+
+Juntar os dois bancos. Primeiro, criar variável de grupo.
+
+```{r}
+banco2pl.t1$grupo <- 't1'
+banco2pl.t2$grupo <- 't2'
+```
+
+Em seguida, empilhar os bancos.
+
+```{r}
+banco.final <- rbindlist(list(banco2pl.t1, banco2pl.t2), fill = TRUE)
+head(banco.final)
+```
+
+Organizar as variáveis
+
+```{r}
+banco.final <- select(banco.final, starts_with('Item'), grupo)
+head(banco.final)
+```
+
+
+
+
+### Calibração dos novos itens
+
+Calibrar usando a função para múltiplos grupos.
+
+```{r}
+fit.2pl.mg <- multipleGroup(data = banco.final[,-71],
+                            model = 1,
+                            group = banco.final$grupo,
+                            itemtype = '2PL',
+                            invariance = c('free_mean',
+                                           'free_var',
+                                           colnames(banco.final)[-71]),
+                            TOL = .001)
+
+pars.mg <- coef(fit.2pl.mg, IRTpars = TRUE, simplify = TRUE)
+pars.mg
+```
+
+Problema: os parâmetros dos itens comuns mudaram, ainda que sejam muito parecidos.
+```{r}
+cor(pars$a[21:50], pars.mg$t1$items[21:50,'a'])
+cor(pars$b[21:50], pars.mg$t1$items[21:50,'b'])
+```
+
+
+Portanto as medidas T1 e T2 não são comparáveis. É preciso fixar esses parâmetros. Primeiro, é preciso gerar a tabela inicial para configuração de parâmetros. Para isso, usamos o argumento `pars`.
+
+```{r}
+tab.pars <- multipleGroup(data = banco.final[,-71],
+                            model = 1,
+                            group = banco.final$grupo,
+                            itemtype = '2PL',
+                            invariance = c('free_mean',
+                                           'free_var',
+                                           colnames(banco.final)[-71]),
+                            TOL = .001,
+                            pars = 'values')
+tab.pars
+```
+
+Agora, vamos atribuir os valores obtidos na calibração inicial. É preciso buscar no objeto `pars` o valor do parâmetro para incluir no objeto `tab.pars`.
+
+Primeiro, criar objeto com nome dos itens comuns e obter a tabela de parâmetros da calibração inicial.
+
+```{r}
+itens.comuns <- paste0('Item_', 21:50)
+pars.comuns <- mod2values(fit.2pl)
+```
+
+Em seguida, fazer um loop para atribuir os valores dos parâmetros.
+```{r}
+for(i in 1:length(itens.comuns))
+{
+  tab.pars[tab.pars$item == itens.comuns[i] & tab.pars$name == 'a1', 'value'] <- pars.comuns[pars.comuns$item == itens.comuns[i] & pars.comuns$name == 'a1', 'value']
+  tab.pars[tab.pars$item == itens.comuns[i] & tab.pars$name == 'd', 'value'] <- pars.comuns[pars.comuns$item == itens.comuns[i] & pars.comuns$name == 'd', 'value']
+  tab.pars[tab.pars$item == itens.comuns[i], 'est'] <- FALSE
+}
+```
+
+Agora sim, a calibração de T2. Note a diferença no argumento `pars`.
+
+```{r, eval=FALSE}
+fit.2pl.mg <- multipleGroup(data = banco.final[,-71],
+                            model = 1,
+                            group = banco.final$grupo,
+                            itemtype = '2PL',
+                            invariance = c('free_mean',
+                                           'free_var',
+                                           colnames(banco.final)[-71]),
+                            TOL = .001,
+                            pars = tab.pars)
+```
+Deu erro, porque na função `mirt` nós restringimos para os itens comuns terem os mesmos parâmetros estimados entre os dois grupos (argumento `invariance`). Porém, esses parâmetros não foram estimados porque usamos `est = FALSE` na tabela de parâmetros. Então precisamos retirar esses itens da restrição.
+
+```{r}
+fit.2pl.mg <- multipleGroup(data = banco.final[,-71],
+                            model = 1,
+                            group = banco.final$grupo,
+                            itemtype = '2PL',
+                            invariance = c('free_mean',
+                                           'free_var',
+                                           colnames(banco.final)[-c(21:50, 71)]),
+                            TOL = .001,
+                            pars = tab.pars)
+
+```
+
+### Análise de DIF
+
+Função DIF no pacote mirt
+
+```{r}
+dif.mirt <- DIF(MGmodel = fit.2pl.mg, which.par = c('a1', 'd'), scheme = 'drop', items2test = 21:50)
+dif.mirt
+```
+
+Função RMSD_DIF no pacote mirt (criério utilizado nesta atividade: `0.10`).
+
+```{r}
+dif.rmsd <- RMSD_DIF(pooled_mod = fit.2pl.mg)
+dif.rmsd
+```
+
+Conclusão: não foi detectado DIF.
+
+
+### Escore dos sujeitos
+
+Calcular o escore dos sujeitos e o erro de medida
+
+```{r}
+escore.2pl.mg <- data.frame(fscores(object = fit.2pl.mg, full.scores.SE = TRUE))
+head(escore.2pl)
+```
+
+Curva de densidade da amostra e de informação do teste
+
+```{r}
+
+info <- testinfo(fit.2pl, seq(-3, 3, .01))
+
+ggplot() +
+  geom_density(aes(x = escore.2pl$F1)) +
+  labs(title='Curva de densidade e de informação', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = info / 45), linetype = 2) +
+  scale_y_continuous(limits = c(0, limite_densidade),
+                     sec.axis = sec_axis(~ . * 45, name = 'informação'))
+```
+
+Curva de densidade da amostra e do erro da medida
+
+```{r}
+info <- testinfo(fit.2pl, seq(-3, 3, .01))
+erro <- 1/sqrt(info + 1)
+ggplot() +
+  geom_density(aes(x = escore.2pl$F1)) +
+  labs(title='Curva de densidade e de informação', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = erro / .8), linetype = 2) +
+  scale_y_continuous(limits = c(0, limite_densidade),
+                     sec.axis = sec_axis(~ . * .8, name = 'erro padrão'))
+```
+
+## Equalização com itens fixos
+
+## Análise final
+
+### Calibração final
+
+Calibrar deixando o Item_2 e o Item_8 livres entre os grupos
+
+```{r}
+fit.2pl.mg2 <- multipleGroup(data = banco.2pl[,-11],
+                             model = 1,
+                             group = banco.2pl$grupo,
+                             itemtype = '2PL',
+                             invariance = c('free_mean',
+                                            'free_var',
+                                            colnames(banco.2pl)[-c(2,8)]))
+```
+
+Parâmetros da nova calibração
+
+```{r}
+pars.mg2 <- coef(fit.2pl.mg2, IRTpars = TRUE, simplify = TRUE)
+pars.mg2
+```
+
+Análise de DIF após nova calibração (lembrando que o Item_2 e o Item_8 estão livres)
+
+```{r}
+dif.mirt <- DIF(MGmodel = fit.2pl.mg2, which.par = c('a1', 'd'), items2test = c(1, 3:7, 9, 10), scheme = 'drop')
+dif.mirt
+
+dif.rmsd <- RMSD_DIF(pooled_mod = fit.2pl.mg2)
+dif.rmsd
+```
+
+### Gráficos
+
+Curva de informação do teste
+
+```{r}
+plot(fit.2pl.mg2, type = 'info')
+```
+
+Erro padrão de medida em função do escore
+
+```{r}
+plot(fit.2pl.mg2, type = 'SE')
+```
+
+Curva de informação de cada item
+
+```{r}
+plot(fit.2pl.mg2, type = 'infotrace')
+```
+
+Curva característica de cada item
+
+```{r}
+plot(fit.2pl.mg2, type = 'trace')
+```
+
+Gráficos de cada item
+
+```{r}
+itemplot(fit.2pl.mg2, 1, 'info')
+itemplot(fit.2pl.mg2, 1, 'trace')
+```

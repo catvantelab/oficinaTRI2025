@@ -1,0 +1,73 @@
+# Montagem do instrumento final
+
+```{r, echo=FALSE, include=FALSE}
+library(mirt)
+library(ggplot2)
+library(data.table)
+library(dplyr)
+library(lordif)
+library(cowplot)
+library(mirtCAT)
+devtools::load_all()
+
+fit.t1 <- readRDS('saidas/fit_t1.rds')
+escore.t1 <- readRDS('saidas/escore_t1.rds')
+fit.t2 <- readRDS('saidas/fit_t1.rds')
+escore.t2 <- readRDS('saidas/escore_t1.rds')
+```
+
+O objetivo é montar um instrumentode 40 itens que meça com boa precisão o intervalo entre `-1.5` e `1.5`. Nesta atividade, vamos selecionar os itens de acordo com sua dificuldade, independente do conteúdo.
+
+Primeiro, vamos criar uma tabela com o banco de itens e ordenar pelo intercepto (facilidade), que é o que o `mirt` usa.
+```{r}
+pars.t1.mirt <- data.frame(coef(fit.t1, simplify = TRUE)$items)
+pars.t2.mirt <- data.frame(coef(fit.t2, simplify = TRUE)$items)
+pars.70 <- rbind(pars.t1.mirt, pars.t2.mirt[31:50,])
+pars.70 <- arrange(pars.70, d)
+head(pars.70)
+```
+
+Em seguida, selecionar os 40 itens com menor valor de `d`.
+
+```{r}
+pars.final <- pars.70[1:40,]
+```
+
+Por último, gerar um modelo mirt com a função `generate.mirt_object` do pacote `mirtCAT`.
+
+```{r}
+fit.final <- generate.mirt_object(parameters = pars.final, itemtype = '2PL')
+```
+
+Avaliar a curva de informação e de erro do teste final.
+
+```{r}
+info_final <- testinfo(fit.final, seq(-3, 3, .01))
+
+grafico_info <- ggplot() +
+  geom_density(aes(x = escore.t1$F1)) +
+  labs(title='Densidade (T1) e informação (final)', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = info_final / 45), linetype = 2) +
+  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
+  scale_y_continuous(limits = c(0, 1),
+                     sec.axis = sec_axis(~ . * 45, name = 'informação'))
+
+erro_final <- 1/sqrt(info_final + 1)
+
+grafico_erro <- ggplot() +
+  geom_density(aes(x = escore.t1$F1)) +
+  labs(title='Densidade (T1) e erro (final)', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = erro_final / .8), linetype = 2) +
+  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
+  scale_y_continuous(limits = c(0, 1),
+                     sec.axis = sec_axis(~ . * .8, name = 'erro padrão'))
+
+plot_grid(grafico_info, grafico_erro,
+          labels = c('A', 'B'),
+          ncol = 2)
+
+```
+
+Ao combinar os itens das duas aplicações, conseguimos criar um instrumento otimizado que, conforme mostram os gráficos, agora oferece precisão maior na região mais alta da escala. Porém, ele atende ao objetivo? Caso negativo, o que é preciso fazer para atender ao objetivo?
+
+Pense em outros usos para o escore (e.g., seleção, certificação e ampliação do intervalo medido) e tente montar um instrumento que atenda a esses objetivos.

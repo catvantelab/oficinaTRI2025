@@ -1,0 +1,23 @@
+# Introdução
+
+O evento Quem Sabe, Ensina ocorreu entre os dias 23 e 24 de setembro de 2025. Este livro disponibiliza o material da oficina Ampliando a régua: calibração de itens em uma métrica conhecida, ministrada por Alexandre Jaloto.
+
+Para rodar os comandos você precisa carregar os pacotes usados
+
+```{r, eval = FALSE}
+library(mirt)
+library(ggplot2)
+library(data.table)
+library(dplyr)
+library(cowplot)
+library(mirtCAT)
+
+# caso ainda não tenha instalado o pacote da oficina
+devtools::install_github('alexandrejaloto/oficinaTRI2025')
+
+# após instalar o pacote da oficina
+library(oficinaTRI2025)
+```
+
+Vamos trocar ideias sobre temas da área de medidas em educação?
+Contato: alexandrejaloto@gmail.com

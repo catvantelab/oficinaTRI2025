@@ -1,0 +1,15 @@
+project:
+  type: book
+
+book:
+  title: "Oficina TRI - Quem Saebe, Ensina 2025"
+  author: "Alexandre Jaloto"
+  date: "09/24/2025"
+  chapters:
+    - index.qmd
+    - fipc1.qmd
+    - fipc2.qmd
+    - montagem.qmd
+format:
+  html:
+    theme: cosmo

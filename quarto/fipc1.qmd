@@ -1,0 +1,137 @@
+# Primeira aplicação
+
+```{r, echo=FALSE, include=FALSE}
+library(mirt)
+library(ggplot2)
+library(data.table)
+library(dplyr)
+library(lordif)
+library(cowplot)
+library(mirtCAT)
+devtools::load_all()
+```
+
+## Preparação
+
+Importar banco
+
+```{r}
+data(banco2pl.t1, package = 'oficinaTRI2025')
+```
+
+Nome das variáveis do banco
+
+```{r}
+names(banco2pl.t1)
+```
+
+## Calibração inicial
+
+Calibrar os itens no modelo logístico de dois parâmetros
+
+```{r}
+fit.t1 <- mirt(data = banco2pl.t1, model = 1, itemtype = '2PL', TOL = .001)
+```
+```{r, echo=FALSE, include=FALSE}
+saveRDS(fit.t1, file = 'saidas/fit_t1.rds')
+```
+
+Verificar os parâmetros dos itens
+
+```{r}
+head(coef(fit.t1))
+```
+
+Verificar os parâmetros dos itens de forma simplificada
+
+```{r}
+coef(fit.t1, simplify = TRUE)
+```
+
+Verificar os parâmetros dos itens na TRI (dificuldade em vez do intercepto) de forma simplificada
+
+```{r}
+coef(fit.t1, IRTpars = TRUE, simplify = TRUE)
+```
+
+Armazenar os parâmetros em um objeto
+
+```{r}
+pars.t1 <- data.frame(coef(fit.t1, IRTpars = TRUE, simplify = TRUE)$items)
+
+head(pars.t1)
+```
+
+## Análise gráfica dos itens e do teste
+
+Curva de informação do teste
+
+```{r}
+plot(fit.t1, type = 'info')
+```
+
+Erro padrão de medida em função do escore
+
+```{r}
+plot(fit.t1, type = 'SE')
+```
+
+Informação do teste e erro padrão
+
+```{r}
+plot(fit.t1, type = 'infoSE')
+```
+
+Curva característica de cada item
+
+```{r}
+plot(fit.t1, type = 'trace')
+```
+
+## Estimação do escore dos sujeitos
+
+Calcular o escore dos sujeitos e o erro de medida
+
+```{r}
+escore.t1 <- data.frame(fscores(object = fit.t1, full.scores.SE = TRUE))
+head(escore.t1)
+```
+
+```{r, echo=FALSE, include=FALSE}
+saveRDS(escore.t1, file = 'saidas/escore_t1.rds')
+```
+
+## Avaliação do instrumento T1 e cobertura do construto
+
+Gráficos com a curva de densidade da amostra, informação do teste e erro de medida na calibração T1.
+
+```{r densidade_1}
+
+info_t1 <- testinfo(fit.t1, seq(-3, 3, .01))
+
+grafico_t1_info <- ggplot() +
+  geom_density(aes(x = escore.t1$F1)) +
+  labs(title='Densidade e informação (T1)', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = info_t1 / 45), linetype = 2) +
+  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
+  scale_y_continuous(limits = c(0, 1),
+                     sec.axis = sec_axis(~ . * 45, name = 'informação'))
+
+erro_t1 <- 1/sqrt(info_t1 + 1)
+
+grafico_t1_erro <- ggplot() +
+  geom_density(aes(x = escore.t1$F1)) +
+  labs(title='Densidade e erro (T1)', x= "escore", y = "densidade") +
+  geom_line(aes(x = seq(-3, 3, .01), y = erro_t1 / .8), linetype = 2) +
+  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
+  scale_y_continuous(limits = c(0, 1),
+                     sec.axis = sec_axis(~ . * .8, name = 'erro padrão'))
+
+plot_grid(grafico_t1_info, grafico_t1_erro,
+          labels = c('A', 'B'),
+          ncol = 2)
+
+```
+
+Conclusão: se quisermos um erro de `0.3`, existe uma lacuna no instrumento para medir os sujeitos com maior magnitude do traço latente. Precisamos ampliar nosso banco com itens mais difíceis.
+
