@@ -193,67 +193,81 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>O objetivo é montar um instrumento de 40 itens que meça com boa precisão o intervalo entre <code>-1.5</code> e <code>1.5</code>. Nesta atividade, vamos selecionar os itens de acordo com sua dificuldade, independente do conteúdo.</p>
+<p>O objetivo é montar um instrumento de 40 itens que meça com boa precisão a região mais alta da escala. Por exemplo, assuma que precisamos selecionar sujeitos para um time de basquete. Nesta atividade, vamos selecionar os itens de acordo com sua dificuldade, independente do conteúdo.</p>
 <p>Primeiro, vamos criar uma tabela com o banco de itens e ordenar pelo intercepto (facilidade), que é o que o <code>mirt</code> usa.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pars.t1.mirt <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">coef</span>(fit.t1, <span class="at">simplify =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>items)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>pars.t2.mirt <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">coef</span>(fit.t2, <span class="at">simplify =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>items)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>pars<span class="fl">.70</span> <span class="ot">&lt;-</span> <span class="fu">rbind</span>(pars.t1.mirt, pars.t2.mirt[<span class="dv">31</span><span class="sc">:</span><span class="dv">50</span>,])</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>pars<span class="fl">.70</span> <span class="ot">&lt;-</span> <span class="fu">arrange</span>(pars<span class="fl">.70</span>, d)</span>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pars.t1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">coef</span>(fit.t1, <span class="at">simplify =</span> <span class="cn">TRUE</span>, <span class="at">IRTpars =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>items)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>pars.t2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">coef</span>(fit.t2, <span class="at">simplify =</span> <span class="cn">TRUE</span>, <span class="at">IRTpars =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>items)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>pars<span class="fl">.70</span> <span class="ot">&lt;-</span> <span class="fu">rbind</span>(pars.t1, pars.t2[<span class="dv">31</span><span class="sc">:</span><span class="dv">50</span>,])</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>pars<span class="fl">.70</span> <span class="ot">&lt;-</span> <span class="fu">arrange</span>(pars<span class="fl">.70</span>, <span class="fu">desc</span>(b))</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pars<span class="fl">.70</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>               a1          d g u
-Item_50  1.792193 -1.2766557 0 1
-Item_501 1.792193 -1.2766557 0 1
-Item_37  1.040911 -1.0550782 0 1
-Item_371 1.040911 -1.0550782 0 1
-Item_41  1.740217 -0.8124996 0 1
-Item_411 1.740217 -0.8124996 0 1</code></pre>
+<pre><code>               a        b g u
+Item_37 1.193447 2.493005 0 1
+Item_58 1.019006 2.444563 0 1
+Item_69 1.209866 2.368122 0 1
+Item_56 1.198195 2.346809 0 1
+Item_59 1.429610 2.295975 0 1
+Item_66 1.559078 2.250950 0 1</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pars.t1.mirt &lt;- data.frame(coef(fit.t1, simplify = TRUE)$items)</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># pars.t2.mirt &lt;- data.frame(coef(fit.t2, simplify = TRUE)$items)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># pars.70 &lt;- rbind(pars.t1.mirt, pars.t2.mirt[31:50,])</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># pars.70 &lt;- arrange(pars.70, d)</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># head(pars.70)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Em seguida, selecionar os 40 itens com menor valor de <code>d</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pars.final <span class="ot">&lt;-</span> pars<span class="fl">.70</span>[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pars.final <span class="ot">&lt;-</span> pars<span class="fl">.70</span>[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Transformar o <code>b</code> em <code>d</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pars.final<span class="sc">$</span>d <span class="ot">&lt;-</span> <span class="sc">-</span> pars.final<span class="sc">$</span>a <span class="sc">*</span> pars.final<span class="sc">$</span>b</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pars.final <span class="ot">&lt;-</span> <span class="fu">select</span>(pars.final, a, d, g, u)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(pars.final)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">'a1'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Por último, gerar um modelo mirt com a função <code>generate.mirt_object</code> do pacote <code>mirtCAT</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit.final <span class="ot">&lt;-</span> <span class="fu">generate.mirt_object</span>(<span class="at">parameters =</span> pars.final, <span class="at">itemtype =</span> <span class="st">'2PL'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fit.final <span class="ot">&lt;-</span> <span class="fu">generate.mirt_object</span>(<span class="at">parameters =</span> pars.final, <span class="at">itemtype =</span> <span class="st">'2PL'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Avaliar a curva de informação e de erro do teste final.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>info_final <span class="ot">&lt;-</span> <span class="fu">testinfo</span>(fit.final, <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, .<span class="dv">01</span>))</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>grafico_info <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> escore.t1<span class="sc">$</span>F1)) <span class="sc">+</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">'Densidade (T1) e informação (final)'</span>, <span class="at">x=</span> <span class="st">"escore"</span>, <span class="at">y =</span> <span class="st">"densidade"</span>) <span class="sc">+</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, .<span class="dv">01</span>), <span class="at">y =</span> info_final <span class="sc">/</span> <span class="dv">45</span>), <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>), <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">linewidth =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">*</span> <span class="dv">45</span>, <span class="at">name =</span> <span class="st">'informação'</span>))</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>erro_final <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(info_final <span class="sc">+</span> <span class="dv">1</span>)</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>grafico_erro <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> escore.t1<span class="sc">$</span>F1)) <span class="sc">+</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">'Densidade (T1) e erro (final)'</span>, <span class="at">x=</span> <span class="st">"escore"</span>, <span class="at">y =</span> <span class="st">"densidade"</span>) <span class="sc">+</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, .<span class="dv">01</span>), <span class="at">y =</span> erro_final <span class="sc">/</span> .<span class="dv">8</span>), <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">1.5</span>, <span class="fl">1.5</span>), <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">linewidth =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">*</span> .<span class="dv">8</span>, <span class="at">name =</span> <span class="st">'erro padrão'</span>))</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_grid</span>(grafico_info, grafico_erro,</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>          <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">'A'</span>, <span class="st">'B'</span>),</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>          <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>info_final <span class="ot">&lt;-</span> <span class="fu">testinfo</span>(fit.final, <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, .<span class="dv">01</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>grafico_info <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> escore.t1<span class="sc">$</span>F1)) <span class="sc">+</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">'Densidade (T1) e informação (final)'</span>, <span class="at">x=</span> <span class="st">"escore"</span>, <span class="at">y =</span> <span class="st">"densidade"</span>) <span class="sc">+</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, .<span class="dv">01</span>), <span class="at">y =</span> info_final <span class="sc">/</span> <span class="dv">45</span>), <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">*</span> <span class="dv">45</span>, <span class="at">name =</span> <span class="st">'informação'</span>))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>erro_final <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">/</span><span class="fu">sqrt</span>(info_final <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>grafico_erro <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="fu">aes</span>(<span class="at">x =</span> escore.t1<span class="sc">$</span>F1)) <span class="sc">+</span></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title=</span><span class="st">'Densidade (T1) e erro (final)'</span>, <span class="at">x=</span> <span class="st">"escore"</span>, <span class="at">y =</span> <span class="st">"densidade"</span>) <span class="sc">+</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">3</span>, <span class="dv">3</span>, .<span class="dv">01</span>), <span class="at">y =</span> erro_final <span class="sc">/</span> .<span class="dv">8</span>), <span class="at">linetype =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="fl">0.3</span><span class="sc">/</span><span class="fl">0.8</span>, <span class="at">linetype =</span> <span class="dv">2</span>, <span class="at">linewidth =</span> .<span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>                     <span class="at">sec.axis =</span> <span class="fu">sec_axis</span>(<span class="sc">~</span> . <span class="sc">*</span> .<span class="dv">8</span>, <span class="at">name =</span> <span class="st">'erro padrão'</span>))</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_grid</span>(grafico_info, grafico_erro,</span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>          <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">'A'</span>, <span class="st">'B'</span>),</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>          <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 22 rows containing missing values or values outside the scale range
+(`geom_line()`).</code></pre>
+</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="montagem_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="montagem_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
-<p>Ao combinar os itens das duas aplicações, conseguimos criar um instrumento otimizado que, conforme mostram os gráficos, agora oferece precisão maior na região mais alta da escala. Porém, ele atende ao objetivo? Caso negativo, o que é preciso fazer para atender ao objetivo?</p>
-<p>Pense em outros usos para o escore (e.g., seleção, certificação e ampliação do intervalo medido) e tente montar um instrumento que atenda a esses objetivos.</p>
+<p>Ao combinar os itens das duas aplicações, conseguimos criar um instrumento otimizado que, conforme mostram os gráficos, agora oferece precisão maior na região mais alta da escala. Ele atende ao objetivo?</p>
+<p>Pense em outros usos para o escore (e.g., certificação ou ampliação do intervalo medido) e tente montar um instrumento que atenda a esses objetivos. Se o objetivo fosse montar dois testes equivalentes, qual seria sua sugestão?</p>
 
 
 

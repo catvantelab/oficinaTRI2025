@@ -92,6 +92,7 @@ fit.t2 <- mirt(data = banco2pl.t2,
                itemtype = '2PL',
                TOL = .001,
                pars = tab.pars)
+pars.t2 <- coef(fit.t2, IRTpars = TRUE, simplify = TRUE)$items
 ```
 A calibração rodou, porém está incorreta. Por padrão, o `mirt` fixa a média do grupo de referência da calibração em `0` e o desvio padrão, em `1`. Veja esses valores obtidos nas calibrações T1 e T2. Em ambos os casos, a média do grupo é `0`.
 
@@ -120,6 +121,13 @@ fit.t2 <- mirt(data = banco2pl.t2,
                itemtype = '2PL',
                TOL = .001,
                pars = tab.pars)
+
+pars.t2 <- coef(fit.t2, IRTpars = TRUE, simplify = TRUE)$items
+```
+
+
+```{r, echo=FALSE, include=FALSE}
+saveRDS(fit.t2, file = 'saidas/fit_t2.rds')
 ```
 
 ## Análise de DIF
@@ -141,6 +149,10 @@ escore.t2 <- data.frame(fscores(fit.t2, full.scores.SE = TRUE))
 head(escore.t2)
 ```
 
+```{r, echo=FALSE, include=FALSE}
+saveRDS(escore.t2, file = 'saidas/escore_t2.rds')
+```
+
 ## Avaliação do instrumento T2 e cobertura do construto
 
 Gráficos com a curva de densidade da amostra, informação do teste e erro de medida na calibração T2.
@@ -153,7 +165,6 @@ grafico_t2_info <- ggplot() +
   geom_density(aes(x = escore.t2$F1)) +
   labs(title='Densidade e informação (T2)', x= "escore", y = "densidade") +
   geom_line(aes(x = seq(-3, 3, .01), y = info_t2 / 45), linetype = 2) +
-  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
   scale_y_continuous(limits = c(0, 1),
                      sec.axis = sec_axis(~ . * 45, name = 'informação'))
 
@@ -163,7 +174,7 @@ grafico_t2_erro <- ggplot() +
   geom_density(aes(x = escore.t2$F1)) +
   labs(title='Densidade e erro (T2)', x= "escore", y = "densidade") +
   geom_line(aes(x = seq(-3, 3, .01), y = erro_t2 / .8), linetype = 2) +
-  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
+  geom_hline(yintercept = 0.3/0.8, linetype = 2, linewidth = .3) +
   scale_y_continuous(limits = c(0, 1),
                      sec.axis = sec_axis(~ . * .8, name = 'erro padrão'))
 
@@ -181,7 +192,6 @@ grafico_t2_t1_info <- ggplot() +
   geom_density(aes(x = escore.t1$F1)) +
   labs(title='Densidade (T1) e informação (T2)', x= "escore", y = "densidade") +
   geom_line(aes(x = seq(-3, 3, .01), y = info_t2 / 45), linetype = 2) +
-  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
   scale_y_continuous(limits = c(0, 1),
                      sec.axis = sec_axis(~ . * 45, name = 'informação'))
 
@@ -189,7 +199,7 @@ grafico_t2_t1_erro <- ggplot() +
   geom_density(aes(x = escore.t1$F1)) +
   labs(title='Densidade (T1) e erro (T2)', x= "escore", y = "densidade") +
   geom_line(aes(x = seq(-3, 3, .01), y = erro_t2 / .8), linetype = 2) +
-  geom_vline(xintercept = c(-1.5, 1.5), linetype = 2, linewidth = .3) +
+  geom_hline(yintercept = 0.3/0.8, linetype = 2, linewidth = .3) +
   scale_y_continuous(limits = c(0, 1),
                      sec.axis = sec_axis(~ . * .8, name = 'erro padrão'))
 
