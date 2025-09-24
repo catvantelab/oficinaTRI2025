@@ -18,33 +18,31 @@ escore.t2 <- readRDS('saidas/escore_t2.rds')
 
 O objetivo é montar um instrumento de 40 itens que meça com boa precisão a região mais alta da escala. Por exemplo, assuma que precisamos selecionar sujeitos para um time de basquete. Nesta atividade, vamos selecionar os itens de acordo com sua dificuldade, independente do conteúdo.
 
-Primeiro, vamos criar uma tabela com o banco de itens e ordenar pelo intercepto (facilidade), que é o que o `mirt` usa.
+Primeiro, vamos criar uma tabela com o banco de itens e ordenar pela dificuldade.
+
 ```{r}
 pars.t1 <- data.frame(coef(fit.t1, simplify = TRUE, IRTpars = TRUE)$items)
 pars.t2 <- data.frame(coef(fit.t2, simplify = TRUE, IRTpars = TRUE)$items)
 pars.70 <- rbind(pars.t1, pars.t2[31:50,])
 pars.70 <- arrange(pars.70, desc(b))
 head(pars.70)
-
-
-
-# pars.t1.mirt <- data.frame(coef(fit.t1, simplify = TRUE)$items)
-# pars.t2.mirt <- data.frame(coef(fit.t2, simplify = TRUE)$items)
-# pars.70 <- rbind(pars.t1.mirt, pars.t2.mirt[31:50,])
-# pars.70 <- arrange(pars.70, d)
-# head(pars.70)
 ```
 
-Em seguida, selecionar os 40 itens com menor valor de `d`.
+Em seguida, selecionar os 40 itens mais difíceis.
 
 ```{r}
 pars.final <- pars.70[1:40,]
 ```
 
-Transformar o `b` em `d`.
+Transformar o `b` em `d`, que é o que o `mirt` usa.
 ```{r}
 pars.final$d <- - pars.final$a * pars.final$b
 pars.final <- select(pars.final, a, d, g, u)
+```
+
+E nomear corretamente o parâmetro `a`.
+
+```{r}
 names(pars.final)[1] <- 'a1'
 ```
 

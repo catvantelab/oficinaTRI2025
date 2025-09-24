@@ -92,7 +92,6 @@ fit.t2 <- mirt(data = banco2pl.t2,
                itemtype = '2PL',
                TOL = .001,
                pars = tab.pars)
-pars.t2 <- coef(fit.t2, IRTpars = TRUE, simplify = TRUE)$items
 ```
 A calibração rodou, porém está incorreta. Por padrão, o `mirt` fixa a média do grupo de referência da calibração em `0` e o desvio padrão, em `1`. Veja esses valores obtidos nas calibrações T1 e T2. Em ambos os casos, a média do grupo é `0`.
 
@@ -123,6 +122,7 @@ fit.t2 <- mirt(data = banco2pl.t2,
                pars = tab.pars)
 
 pars.t2 <- coef(fit.t2, IRTpars = TRUE, simplify = TRUE)$items
+head(pars.t2)
 ```
 
 

@@ -194,7 +194,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>O objetivo é montar um instrumento de 40 itens que meça com boa precisão a região mais alta da escala. Por exemplo, assuma que precisamos selecionar sujeitos para um time de basquete. Nesta atividade, vamos selecionar os itens de acordo com sua dificuldade, independente do conteúdo.</p>
-<p>Primeiro, vamos criar uma tabela com o banco de itens e ordenar pelo intercepto (facilidade), que é o que o <code>mirt</code> usa.</p>
+<p>Primeiro, vamos criar uma tabela com o banco de itens e ordenar pela dificuldade.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pars.t1 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">coef</span>(fit.t1, <span class="at">simplify =</span> <span class="cn">TRUE</span>, <span class="at">IRTpars =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>items)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>pars.t2 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="fu">coef</span>(fit.t2, <span class="at">simplify =</span> <span class="cn">TRUE</span>, <span class="at">IRTpars =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>items)</span>
@@ -210,21 +210,19 @@ Item_56 1.198195 2.346809 0 1
 Item_59 1.429610 2.295975 0 1
 Item_66 1.559078 2.250950 0 1</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># pars.t1.mirt &lt;- data.frame(coef(fit.t1, simplify = TRUE)$items)</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># pars.t2.mirt &lt;- data.frame(coef(fit.t2, simplify = TRUE)$items)</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># pars.70 &lt;- rbind(pars.t1.mirt, pars.t2.mirt[31:50,])</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># pars.70 &lt;- arrange(pars.70, d)</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># head(pars.70)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Em seguida, selecionar os 40 itens com menor valor de <code>d</code>.</p>
+<p>Em seguida, selecionar os 40 itens mais difíceis.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pars.final <span class="ot">&lt;-</span> pars<span class="fl">.70</span>[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pars.final <span class="ot">&lt;-</span> pars<span class="fl">.70</span>[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>,]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Transformar o <code>b</code> em <code>d</code>.</p>
+<p>Transformar o <code>b</code> em <code>d</code>, que é o que o <code>mirt</code> usa.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pars.final<span class="sc">$</span>d <span class="ot">&lt;-</span> <span class="sc">-</span> pars.final<span class="sc">$</span>a <span class="sc">*</span> pars.final<span class="sc">$</span>b</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pars.final <span class="ot">&lt;-</span> <span class="fu">select</span>(pars.final, a, d, g, u)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(pars.final)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">'a1'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pars.final<span class="sc">$</span>d <span class="ot">&lt;-</span> <span class="sc">-</span> pars.final<span class="sc">$</span>a <span class="sc">*</span> pars.final<span class="sc">$</span>b</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>pars.final <span class="ot">&lt;-</span> <span class="fu">select</span>(pars.final, a, d, g, u)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>E nomear corretamente o parâmetro <code>a</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(pars.final)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">'a1'</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Por último, gerar um modelo mirt com a função <code>generate.mirt_object</code> do pacote <code>mirtCAT</code>.</p>
 <div class="cell">
@@ -261,7 +259,7 @@ Item_66 1.559078 2.250950 0 1</code></pre>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="montagem_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="montagem_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>

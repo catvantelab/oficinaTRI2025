@@ -13,7 +13,7 @@ library(cowplot)
 library(mirtCAT)
 
 # caso ainda não tenha instalado o pacote da oficina
-devtools::install_github('alexandrejaloto/oficinaTRI2025')
+devtools::install_github('catvantelab/oficinaTRI2025')
 
 # após instalar o pacote da oficina
 library(oficinaTRI2025)
