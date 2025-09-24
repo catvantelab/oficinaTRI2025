@@ -15,7 +15,7 @@
 
 abrir_apresentacao <- function() {
 
-  url <- "https://alexandrejaloto.github.io/oficinaTRI2025/ampliando_regua.pdf"
+  url <- "https://catvantelab.github.io/oficinaTRI2025/ampliando_regua.pdf"
 
   utils::browseURL(url)
 

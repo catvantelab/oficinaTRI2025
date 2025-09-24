@@ -15,7 +15,7 @@
 
 abrir_livro <- function() {
 
-  url <- "https://alexandrejaloto.github.io/oficinaTRI2025/"
+  url <- "https://catvantelab.github.io/oficinaTRI2025/"
 
   utils::browseURL(url)
 
