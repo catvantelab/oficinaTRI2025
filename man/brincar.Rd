@@ -10,6 +10,7 @@ brincar()
 Gera um aplicativo shiny com o objetivo de conhecer melhor a TRI
 }
 \examples{
+
 brincar()
 
 }

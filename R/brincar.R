@@ -6,6 +6,7 @@
 #' @author Alexandre Jaloto
 #'
 #' @examples
+#'
 #' brincar()
 #'
 #' @export
