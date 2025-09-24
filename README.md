@@ -4,7 +4,7 @@ Pacote R com material da oficina de Teoria de Resposta ao Item (TRI) do evento Q
 
 ## Instalar o pacote
 
-Instale via GitHub usando `devtools::install_github("alexandrejaloto/oficinaTRI2025")`.
+Instale via GitHub usando `devtools::install_github("catvantelab/oficinaTRI2025")`.
 
 Para testar a instalação, rode: `oficinaTRI2025::teste()`. Se os pacotes 
 tiverem sido instalados corretamente, uma mensagem aparecerá no R e 

@@ -16,7 +16,7 @@ fit.t2 <- readRDS('saidas/fit_t1.rds')
 escore.t2 <- readRDS('saidas/escore_t1.rds')
 ```
 
-O objetivo é montar um instrumentode 40 itens que meça com boa precisão o intervalo entre `-1.5` e `1.5`. Nesta atividade, vamos selecionar os itens de acordo com sua dificuldade, independente do conteúdo.
+O objetivo é montar um instrumento de 40 itens que meça com boa precisão o intervalo entre `-1.5` e `1.5`. Nesta atividade, vamos selecionar os itens de acordo com sua dificuldade, independente do conteúdo.
 
 Primeiro, vamos criar uma tabela com o banco de itens e ordenar pelo intercepto (facilidade), que é o que o `mirt` usa.
 ```{r}
